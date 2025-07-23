@@ -93,6 +93,9 @@ class Router
              */
     uint32_t getSpeedScheduleAttemps() const;
 
+    std::vector<Eigen::Vector3d> getStarts() const {return starts_;};
+    std::vector<Eigen::Vector3d> getGoals() const {return goals_;};
+
     std::shared_ptr<float> potential_;
 
   private:
@@ -151,7 +154,7 @@ class Router
         multiThreadSrr
     };
     graphType graphMode_ = graphType::voronoi;
-    goalMode goalMode_ = goalMode::use_voronoi_goal;
+    goalMode goalMode_ = goalMode::use_map_goal;
     float routerTimeLimit_s_ = 10.0;
     bool segmentOptimizations_ = false;
     bool speedRescheduling_ = true;
