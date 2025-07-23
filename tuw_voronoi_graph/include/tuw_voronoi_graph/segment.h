@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef SEGMENT_H
-#define SEGMENT_H
+#ifndef TUW_VORONOI_GRAPH_SEGMENT_H
+#define TUW_VORONOI_GRAPH_SEGMENT_H
 
 #include <ros/ros.h>
 #include <eigen3/Eigen/Dense>
@@ -166,6 +166,15 @@ namespace tuw_graph
              * @return a reference to opt end
              */
             bool &getOptEnd();
+            // 新增方法：设置是否为门通道
+            void setDoor(bool isDoor) { door_ = isDoor; }
+            // 新增方法：获取是否为门通道
+            bool isDoor() const { return door_; }
+            void setValid(bool isValid) {valid_ = isValid;}
+            bool isValid() const {return valid_;}
+            void setTraversability(bool traversability) {traversability_ = traversability;}
+            bool getTraversability() const {return traversability_;}
+            int getNumOfSuccessors() {return successor_.size();}
 
         private:
             Eigen::Vector2d start_, end_;
@@ -181,6 +190,9 @@ namespace tuw_graph
 
             bool optimizedStart_;
             bool optimizedEnd_;
+            bool door_ = false;  // 新增属性，用于标记是否为门通道
+            bool valid_ = true;
+            bool traversability_ = true;
 
     };
 }
