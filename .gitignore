@@ -61,3 +61,6 @@ build
 devel
 .catkin_workspace
 ./src/CMakeLists.txt
+
+# tmp
+tuw_voronoi_graph/tmp/
