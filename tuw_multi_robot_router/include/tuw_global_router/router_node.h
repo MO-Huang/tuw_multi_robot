@@ -30,6 +30,7 @@
 #define ROUTER_NODE_H
 
 //ROS
+#include "tuw_global_router/srr_utils.h"
 #include <ros/ros.h>
 #include <tuw_multi_robot_msgs/RobotGoalsArray.h>
 #include <tuw_multi_robot_msgs/RobotGoals.h>
@@ -45,6 +46,7 @@
 #include <tuw_global_router/router.h>
 #include <tuw_global_router/mrr_utils.h>
 #include <opencv2/core/core.hpp>
+#include <tuw_voronoi_graph/segment.h>
 
 //TODO disable got_map if not used
 
@@ -78,6 +80,14 @@ public:
     void updateTimeout ( const float _secs );
     ros::NodeHandle n_;       ///< Node handler to the root node
     ros::NodeHandle n_param_; ///< Node handler to the current node
+
+    enum {REACH_END = 1, NO_PATH = 2, NOT_PLAN = 3};
+    int search ( const Eigen::Vector3d &start_pt, const Eigen::Vector3d &end_pt );
+    std::vector<Eigen::Vector3d> getPath();
+    double pathLength(std::vector<Eigen::Vector3d> &path);
+    void updateMap ( const nav_msgs::OccupancyGrid &_map );
+    void updateGraph (const std::vector<tuw_graph::Segment> &_graph );
+    std::vector<Eigen::Vector3d> getBlockedPathSeg() {return blocked_path_seg_;}
 
 private:
     //these 3 members are for time logging
@@ -120,6 +130,10 @@ private:
     float topic_timeout_s_ = 10;
     bool freshPlan_ = false;
     bool monitor_enabled_;
+
+    std::vector<Eigen::Vector3d> starts3d_;
+    std::vector<Eigen::Vector3d> goals3d_;
+    std::vector<Eigen::Vector3d> blocked_path_seg_;
     
     void parametersCallback ( tuw_multi_robot_router::routerConfig &config, uint32_t level );
     void odomCallback ( const ros::MessageEvent<nav_msgs::Odometry const> &_event, int _topic );
