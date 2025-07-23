@@ -148,8 +148,8 @@ endif()
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES tuw_multi_robot_router
+ INCLUDE_DIRS include
+ LIBRARIES tuw_multi_robot_router
   CATKIN_DEPENDS dynamic_reconfigure geometry_msgs nav_msgs roscpp tf tuw_multi_robot_msgs tuw_voronoi_graph
 #  DEPENDS system_lib
 )
@@ -187,6 +187,7 @@ add_library(${PROJECT_NAME}
     src/potential_calculator.cpp
     src/speed_scheduler.cpp
     src/route_coordinator.cpp
+    src/router_node.cpp
  )
 target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
