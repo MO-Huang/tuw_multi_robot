@@ -52,6 +52,7 @@ class Checkpoint
     Eigen::Vector3d start;
     Eigen::Vector3d end;
     std::vector<Precondition> preconditions;
+    bool traversability;
 
     /**
              * @brief constructor to assign Checkpoint from a Route Vertex used in route candidates
