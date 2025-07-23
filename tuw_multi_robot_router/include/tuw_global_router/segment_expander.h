@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef SEGMENT_EXPANDER_H
-#define SEGMENT_EXPANDER_H
+#ifndef MULTI_ROBOT_ROUTER_SEGMENT_EXPANDER_H
+#define MULTI_ROBOT_ROUTER_SEGMENT_EXPANDER_H
 
 #define POT_HIGH 1.0e10
 #include <tuw_global_router/heuristic.h>

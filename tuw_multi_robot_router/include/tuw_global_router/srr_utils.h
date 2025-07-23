@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef SEGMENT_H
-#define SEGMENT_H
+#ifndef MULTI_ROBOT_ROUTER_SEGMENT_H
+#define MULTI_ROBOT_ROUTER_SEGMENT_H
 
 #include <memory>
 #include <vector>
@@ -42,6 +42,7 @@ namespace multi_robot_router
     {
         public:
             Segment(const uint32_t &_id, const std::vector<Eigen::Vector2d> &_points, const std::vector<uint32_t> &_successors, const std::vector<uint32_t> &_predecessors, const float &_width);
+            Segment(const uint32_t &_id, const std::vector<Eigen::Vector2d> &_points, const std::vector<uint32_t> &_successors, const std::vector<uint32_t> &_predecessors, const float &_width, const bool &_traversability);
             uint32_t getSegmentId() const;
             float width() const;
             float length() const;
@@ -49,6 +50,7 @@ namespace multi_robot_router
             const std::vector<Eigen::Vector2d> &getPoints() const;
             const std::vector<uint32_t> &getPredecessors() const;
             const std::vector<uint32_t> &getSuccessors() const;
+            const bool &getTraversability() const;
 
             const Eigen::Vector2d &getStart() const;
             const Eigen::Vector2d &getEnd() const;
@@ -59,6 +61,7 @@ namespace multi_robot_router
             std::vector<Eigen::Vector2d> points_;
             std::vector<uint32_t> predecessors_;
             std::vector<uint32_t> successors_;
+            bool traversability_;
     };
 
 
