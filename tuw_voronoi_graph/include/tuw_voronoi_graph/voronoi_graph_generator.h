@@ -32,6 +32,7 @@
 #include <ros/ros.h>
 #include <tuw_voronoi_graph/segment.h>
 #include <tuw_voronoi_graph/segment_expander.h>
+#include <opencv2/opencv.hpp>
 
 namespace tuw_graph
 {
@@ -49,7 +50,11 @@ namespace tuw_graph
              * @param _optimizePixelsCrossing if crossings have less distance than _optimizePixelsCrossing to each other they are merged
              * @param _optimizePixelsEndSegments if a end segment has less length than this var it is removed
              */
-            std::vector<Segment> calcSegments(cv::Mat &_map, cv::Mat &_distField, cv::Mat &_voronoiPath, float * potential, float _path_length, float _optimizeCrossingPixels, float _optimizeEndSegmentsPixel);
+            std::vector<Segment> calcSegments(cv::Mat &_map, cv::Mat &_realTimeMap, cv::Mat &_distField, cv::Mat &_voronoiPath, float * potential, float _path_length, float _optimizeCrossingPixels, float _optimizeEndSegmentsPixel);
+        
+        private:
+            void detectDoors(std::vector<Segment> &segments);
+            void updateTraversability(cv::Mat &_realTimeMap, std::vector<Segment> &segments);
 
     };
 }
