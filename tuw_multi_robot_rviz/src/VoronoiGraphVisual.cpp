@@ -53,7 +53,7 @@ VoronoiGraphVisual::VoronoiGraphVisual(Ogre::SceneManager *scene_manager, Ogre::
 
     // initialize global variables
     colorPath_ = Ogre::ColourValue(255, 0, 0);
-    scalePoint_ = 0.1;
+    scalePoint_ = 0.2;
     scalePath_ = 1;
 }
 
@@ -81,6 +81,8 @@ void VoronoiGraphVisual::setMessage(const tuw_multi_robot_msgs::Graph::ConstPtr 
         geometry_msgs::Point p2 = seg.path.back();
 
         // 	Ogre::Quaternion rotation  = Ogre::Quaternion ( Ogre::Radian( (*spline_)(i / (double)pointsNrPath_ )(2) + atan2(v_y, v_x) ), Ogre::Vector3::UNIT_Z );
+        // setPathColorByDoor(seg.door);
+        setPathColorByTraversability(seg.traversability);
 
         Ogre::Quaternion rotation;
         rotation.x = 1;
@@ -146,6 +148,26 @@ void VoronoiGraphVisual::setPathScale(float scale)
     {
         pathThetai->setScale(Ogre::Vector3(scalePath_, scalePath_, scalePath_));
     }
+}
+
+void VoronoiGraphVisual::setPathColorByDoor(bool door)
+{
+    Ogre::ColourValue color;
+    if (door)
+        color = Ogre::ColourValue(0, 255, 0);
+    else
+        color = Ogre::ColourValue(0, 0, 255);
+    colorPath_ = color;
+}
+
+void VoronoiGraphVisual::setPathColorByTraversability(bool traversability)
+{
+    Ogre::ColourValue color;
+    if (!traversability)
+        color = Ogre::ColourValue(255, 0, 0);
+    else
+        color = Ogre::ColourValue(0, 0, 255);
+    colorPath_ = color;
 }
 
 } // namespace tuw_multi_robot_rviz
