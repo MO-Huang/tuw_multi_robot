@@ -36,7 +36,7 @@ namespace tuw_graph
 
     }
 
-    std::vector<Segment> VoronoiGraphGenerator::calcSegments(cv::Mat &_map, cv::Mat &_distField, cv::Mat &_voronoiPath, float* potential, float _path_length, float _optimizeCrossingPixels, float _optimizeEndSegmentsPixel)
+    std::vector<Segment> VoronoiGraphGenerator::calcSegments(cv::Mat &_map, cv::Mat &_realTimeMap, cv::Mat &_distField, cv::Mat &_voronoiPath, float* potential, float _path_length, float _optimizeCrossingPixels, float _optimizeEndSegmentsPixel)
     {
         Segment_Expander exp;
         exp.Initialize(_map, _distField, _voronoiPath);
@@ -51,6 +51,9 @@ namespace tuw_graph
         std::fill(potential, potential + nx * ny, -1);
 
         std::vector<Segment> segs = exp.getGraph(points, potential, _path_length, _optimizeCrossingPixels, _optimizeEndSegmentsPixel);
+       
+        detectDoors(segs);
+        updateTraversability(_realTimeMap, segs);
 
         for(uint32_t i = 0; i < segs.size(); i++)
         {
@@ -60,5 +63,23 @@ namespace tuw_graph
 
 
         return std::vector<Segment>(segs);
+    }
+    
+    void VoronoiGraphGenerator::detectDoors(std::vector<Segment> &segments) {
+        for (auto& segment : segments){
+            if (segment.getMinPathSpace() >= 5.0 && segment.getMinPathSpace() <= 7.0 && segment.getNumOfSuccessors() > 0) {
+                segment.setDoor(true);
+            }
+        } 
+    }
+
+    void VoronoiGraphGenerator::updateTraversability(cv::Mat &_realTimeMap, std::vector<Segment> &segments) {
+        for (auto& segment : segments) {
+            std::vector<Eigen::Vector2d> path = segment.getPath();
+            for (auto& point : path) {
+                if(_realTimeMap.at<int8_t>(point[1], point[0]) == 100)
+                    segment.setTraversability(false);
+            }
+        }
     }
 }
