@@ -42,6 +42,17 @@ Segment::Segment(const uint32_t &_id, const std::vector<Eigen::Vector2d> &_point
     length_ = sqrt(p[0] * p[0] + p[1] * p[1]);
 }
 
+Segment::Segment(const uint32_t &_id, const std::vector<Eigen::Vector2d> &_points, const std::vector<uint32_t> &_successors, const std::vector<uint32_t> &_predecessors, const float &_width, const bool &_traversability) : points_(_points),
+                                                                                                                                                                                                                             successors_(_successors),
+                                                                                                                                                                                                                             predecessors_(_predecessors)
+{
+    segmentId_ = _id;
+    width_ = _width;
+    Eigen::Vector2d p = (_points.back() - _points.front());
+    length_ = sqrt(p[0] * p[0] + p[1] * p[1]);
+    traversability_ = _traversability;
+}
+
 const Eigen::Vector2d &Segment::getEnd() const
 {
     return points_.back();
@@ -69,6 +80,11 @@ const Eigen::Vector2d &Segment::getStart() const
 const std::vector<uint32_t> &Segment::getSuccessors() const
 {
     return successors_;
+}
+
+const bool &Segment::getTraversability() const
+{
+    return traversability_;
 }
 
 float Segment::length() const
