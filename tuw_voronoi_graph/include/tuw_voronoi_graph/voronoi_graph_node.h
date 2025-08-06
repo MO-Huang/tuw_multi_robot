@@ -27,16 +27,21 @@ namespace tuw_graph
             std::unique_ptr<ros::Rate> rate_;
             void publishMap();
             void publishSegments();
+            void generateGraph(nav_msgs::OccupancyGrid grid);
+            nav_msgs::OccupancyGrid getLongTermMap();
+            std::vector<Segment> getSegments(){return segments_;};
 
         private:
             void globalMapCallback(const nav_msgs::OccupancyGrid::ConstPtr& _map);
             void createGraph(const nav_msgs::OccupancyGrid::ConstPtr& _map, size_t _map_hash);
             bool loadGraph(size_t _hash);
             bool loadCustomGraph(std::string _path);
+            void updateLongTermMap(const nav_msgs::OccupancyGrid::ConstPtr& _map);
             
             
             ros::Publisher                          pubVoronoiMapImage_;
             ros::Publisher                          pubSegments_;
+            ros::Publisher                          pubLongTermMap_;
             ros::Subscriber                         subMap_;
   
 
@@ -64,6 +69,8 @@ namespace tuw_graph
             
             
             nav_msgs::OccupancyGrid voronoiMapImage_;
+            nav_msgs::OccupancyGrid longTermMap_;
+            nav_msgs::OccupancyGrid realTimeMap_;
     };
 
 }
