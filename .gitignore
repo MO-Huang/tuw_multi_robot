@@ -64,3 +64,6 @@ devel
 
 # tmp
 tuw_voronoi_graph/tmp/
+
+# VSCode
+src.code-workspace
