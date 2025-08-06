@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(tuw_voronoi_graph)
 
+set(CMAKE_BUILD_TYPE "Release")
+set(CMAKE_CXX_FLAGS "-std=c++17")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall")
+set(CMAKE_CXX_FLAGS_DEBUG "-g -O2")
+set(CMAKE_C_FLAGS_DEBUG "-g -O2")
+
 ## Compile as C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++14)
 add_compile_options(-Wall)
@@ -130,8 +136,8 @@ endif()
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES tuw_voronoi_graph
+ INCLUDE_DIRS include
+ LIBRARIES tuw_voronoi_graph
   CATKIN_DEPENDS dynamic_reconfigure cv_bridge geometry_msgs nav_msgs roscpp tf tuw_multi_robot_msgs 
 #  DEPENDS OpenCV
 )
@@ -176,7 +182,8 @@ target_link_libraries(dxf_graph_lib graph_serialization_lib voronoi_graph_lib ${
 
 
 add_executable(tuw_voronoi_graph_node src/voronoi_graph_node.cpp)
-target_link_libraries(tuw_voronoi_graph_node voronoi_path_lib)
+target_link_libraries(tuw_voronoi_graph_node voronoi_path_lib voronoi_graph_lib)
+# target_link_libraries(tuw_voronoi_graph_node voronoi_generator_node_lib)
 
 add_executable(tuw_dxf_graph_node src/dxf_to_graph_node.cpp)
 target_link_libraries(tuw_dxf_graph_node dxf_graph_lib)
@@ -187,9 +194,10 @@ target_link_libraries(tuw_segment_to_graph_node
   yaml-cpp
 )
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/tuw_voronoi_graph.cpp
-# )
+add_library(${PROJECT_NAME}
+  src/voronoi_graph_node.cpp
+)
+target_link_libraries(${PROJECT_NAME} voronoi_path_lib voronoi_graph_lib graph_serialization_lib ${catkin_LIBRARIES} ${OpenCV_LIBRARIES})
 
 ## Add cmake target dependencies of the library
 ## as an example, code may need to be generated before libraries
