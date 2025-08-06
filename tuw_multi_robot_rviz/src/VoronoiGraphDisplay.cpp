@@ -49,9 +49,9 @@ namespace tuw_multi_robot_rviz
 // The constructor must have no arguments, so we can't give the
 // constructor the parameters it needs to fully initialize.
 VoronoiGraphDisplay::VoronoiGraphDisplay() {
-    color_path_property_ = new rviz::ColorProperty ( "Path Color", QColor ( 50, 51, 204 ),
-            "Color to draw the path.",
-            this, SLOT ( updatePathColor() ) );
+    // color_path_property_ = new rviz::ColorProperty ( "Path Color", QColor ( 50, 51, 204 ),
+    //         "Color to draw the path.",
+    //         this, SLOT ( updatePathColor() ) );
 
         scale_point_property_ = new rviz::FloatProperty ( "Path Points Scale", 0.1,
             "Scale of the path points.",
@@ -92,10 +92,10 @@ void VoronoiGraphDisplay::reset() {
 }
 
 // Set the current color values for each visual.
-void VoronoiGraphDisplay::updatePathColor() {
-    Ogre::ColourValue color = color_path_property_->getOgreColor();
-    for ( auto& visualsI: visuals_ ) { visualsI->setPathColor ( color ); }
-}
+// void VoronoiGraphDisplay::updatePathColor() {
+//     Ogre::ColourValue color = color_path_property_->getOgreColor();
+//     for ( auto& visualsI: visuals_ ) { visualsI->setPathColor ( color ); }
+// }
 
 // Set the number of past visuals to show.
 void VoronoiGraphDisplay::updateHistoryLength() {
@@ -143,7 +143,7 @@ void VoronoiGraphDisplay::processMessage ( const  tuw_multi_robot_msgs::Graph::C
     visual->setFramePosition    ( position );
     visual->setFrameOrientation ( orientation );
     
-    visual->setPathColor     ( color_path_property_->getOgreColor() );
+    // visual->setPathColor     ( color_path_property_->getOgreColor() );
 
     // And send it to the end of the circular buffer
     visuals_.push_back ( visual );
