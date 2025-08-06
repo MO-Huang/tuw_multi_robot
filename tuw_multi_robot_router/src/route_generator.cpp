@@ -66,6 +66,7 @@ Checkpoint RouteGenerator::createElement(const RouteVertex &_element) const
     if (_element.direction == RouteVertex::path_direction::start_to_end)
     {
         ps.segId = _element.getSegment().getSegmentId();
+        ps.traversability = _element.getSegment().getTraversability();
         ps.end[0] = _element.getSegment().getStart()[0];
         ps.end[1] = _element.getSegment().getStart()[1];
         ps.start[0] = _element.getSegment().getEnd()[0];
@@ -78,6 +79,7 @@ Checkpoint RouteGenerator::createElement(const RouteVertex &_element) const
     else
     {
         ps.segId = _element.getSegment().getSegmentId();
+        ps.traversability = _element.getSegment().getTraversability();
         ps.end[0] = _element.getSegment().getEnd()[0];
         ps.end[1] = _element.getSegment().getEnd()[1];
         ps.start[0] = _element.getSegment().getStart()[0];
