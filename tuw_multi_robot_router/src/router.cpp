@@ -191,8 +191,10 @@ bool Router::processEndpointsExpander(const cv::Mat &_map, const std::vector<Seg
 
 bool Router::calculateStartPoints(const std::vector<float> &_radius, const cv::Mat &_map, const float &resolution, const Eigen::Vector2d &origin, const std::vector<Segment> &_graph)
 {
-    if (!preprocessEndpoints(_radius, resolution, origin, _graph))
+    if (!preprocessEndpoints(_radius, resolution, origin, _graph)){
+        std::cout << "\033[31m!preprocessEndpoints(...)\033[0m" << std::endl;
         return false;
+    }
 
     std::vector<std::thread> t;
     t.resize(robot_nr_);
@@ -244,7 +246,12 @@ int32_t Router::getSegment(const std::vector<Segment> &_graph, const Eigen::Vect
     {
         float d = distanceToSegment(_graph[i], _odom);
 
-        if (d < minDist && d <= _graph[i].width())
+        // if (d < minDist && d <= _graph[i].width())
+        // {
+        //     segment = i;
+        //     minDist = d;
+        // }
+        if (d < minDist)
         {
             segment = i;
             minDist = d;
@@ -343,7 +350,7 @@ bool Router::makePlan(const std::vector<Eigen::Vector3d> &_starts, const std::ve
     robot_nr_ = _goals.size();
     resize(robot_nr_);
 
-    ROS_INFO("=========================================================");
+    // ROS_INFO("=========================================================");
     pointExpander_.initialize(_map);
     goals_ = _goals;
     starts_ = _starts;
