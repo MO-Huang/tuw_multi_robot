@@ -85,6 +85,8 @@ public:
   void setPathColor( Ogre::ColourValue color );
   void setPointScale ( float scale );
   void setPathScale ( float scale );
+  void setPathColorByDoor(bool door);
+  void setPathColorByTraversability(bool traversability);
 
 private:
   // The objects implementing the actual shape
