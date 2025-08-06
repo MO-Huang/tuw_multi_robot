@@ -1,0 +1,23 @@
+<launch>
+    <!-- 启动 voronoi_graph_node 节点 -->
+    <node name="voronoi_graph_node" pkg="tuw_voronoi_graph" type="tuw_voronoi_graph_node" output="screen">
+        <!-- 设置循环频率 -->
+        <param name="loop_rate" value="0.5" />
+        <!-- 是否发布膨胀地图图像 -->
+        <param name="publish_voronoi_map_image" value="false" />
+        <!-- 地图膨胀距离（米） -->
+        <param name="map_inflation" value="0.0" />
+        <!-- 图段长度（米） -->
+        <param name="segment_length" value="1.0" />
+        <!-- 交叉点优化参数 -->
+        <param name="opt_crossings" value="0.2" />
+        <!-- 末端段优化参数 -->
+        <param name="opt_end_segments" value="0.2" />
+        <!-- 图缓存路径 -->
+        <param name="graph_cache_path" value="/home/max/star_searcher_ws/src/STAR-Searcher/Star-Searcher/search_planner/search_planner/tuw_multi_robot/tuw_multi_robot/tuw_voronoi_graph/tmp" />
+        <!-- 自定义图路径 -->
+        <param name="custom_graph_path" value="" />
+        <!-- 重映射订阅的地图话题 -->
+        <remap from="/map" to="/nav_msgs_occupancy_grid" />
+    </node>
+</launch>
