@@ -42,7 +42,8 @@ namespace voronoi_map
                                         cv::Size( 2*erodeSize + 1, 2*erodeSize+1 ),
                                         cv::Point( erodeSize, erodeSize ) );
     
-            cv::erode(_des, _des, element);
+            // cv::erode(_des, _des, element);
+            cv::morphologyEx(_des, _des, cv::MORPH_OPEN, element);
         }
     }
 
