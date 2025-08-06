@@ -54,37 +54,40 @@ namespace tuw_graph
             customGraphPath_ += "/";
         }
 
-        subMap_ = n.subscribe("map", 1, &VoronoiGeneratorNode::globalMapCallback, this);
+        // subMap_ = n.subscribe("map", 1, &VoronoiGeneratorNode::globalMapCallback, this);
         if(publishVoronoiMapImage_){
             pubVoronoiMapImage_    = n.advertise<nav_msgs::OccupancyGrid>( "map_eroded", 1);
         }
         pubSegments_ = n.advertise<tuw_multi_robot_msgs::Graph>("segments", 1);
+        pubLongTermMap_ = n.advertise<nav_msgs::OccupancyGrid>("long_term_map", 1);
 
 
         ros::Rate r(loop_rate);
 
         ROS_INFO("Initialization done!");
 
-        while (ros::ok())
-        {
-            ros::spinOnce();
+        // while (ros::ok())
+        // {
+        //     ros::spinOnce();
 
-            publishSegments();
+        //     publishSegments();
 
-            r.sleep();
-        }
+        //     r.sleep();
+        // }
 
     }
 
     void VoronoiGeneratorNode::globalMapCallback(const nav_msgs::OccupancyGrid::ConstPtr &_map)
     {
-        std::vector<signed char> map = _map->data;
+        updateLongTermMap(_map);
+        pubLongTermMap_.publish(longTermMap_);
+        std::vector<signed char> map = longTermMap_.data;
 
 
         std::vector<double> parameters;
-        parameters.push_back(_map->info.origin.position.x);
-        parameters.push_back(_map->info.origin.position.y);
-        parameters.push_back(_map->info.resolution);
+        parameters.push_back(longTermMap_.info.origin.position.x);
+        parameters.push_back(longTermMap_.info.origin.position.y);
+        parameters.push_back(longTermMap_.info.resolution);
         parameters.push_back(inflation_);
         parameters.push_back(segment_length_);
         parameters.push_back(endSegmentOptimization_);
@@ -100,7 +103,7 @@ namespace tuw_graph
                 if (!loadGraph(new_hash) )
                 {
                     ROS_INFO("Graph generator: Graph not found! Generating new one!");
-                    createGraph(_map, new_hash);
+                    createGraph(boost::make_shared<nav_msgs::OccupancyGrid>(longTermMap_), new_hash);
                 }
                 else
                 {
@@ -121,9 +124,9 @@ namespace tuw_graph
 
         if (publishVoronoiMapImage_ && (map_.size > 0))
         {
-            voronoiMapImage_.header = _map->header;
-            voronoiMapImage_.info = _map->info;
-            voronoiMapImage_.data.resize(_map->data.size());
+            voronoiMapImage_.header = longTermMap_.header;
+            voronoiMapImage_.info = longTermMap_.info;
+            voronoiMapImage_.data.resize(longTermMap_.data.size());
 
             for (unsigned int i = 0; i < voronoiMapImage_.data.size(); i++)
             {
@@ -141,26 +144,27 @@ namespace tuw_graph
         segments_.clear();
         Segment::resetId();
 
-        ROS_INFO("Graph generator: Computing distance field ...");
+        // ROS_INFO("Graph generator: Computing distance field ...");
         origin_[0] = _map->info.origin.position.x;
         origin_[1] = _map->info.origin.position.y;
         resolution_ = _map->info.resolution;
 
         cv::Mat m(_map->info.height, _map->info.width, CV_8SC1, map.data());
+        cv::Mat m_r(realTimeMap_.info.height, realTimeMap_.info.width, CV_8SC1, realTimeMap_.data.data());
         prepareMap(m, map_, inflation_ / _map->info.resolution);
         computeDistanceField(map_, distField_);
 
-        ROS_INFO("Graph generator: Computing voronoi graph ...");
+        // ROS_INFO("Graph generator: Computing voronoi graph ...");
         computeVoronoiMap(distField_, voronoiMap_);
 
-        ROS_INFO("Graph generator: Generating graph ...");
+        // ROS_INFO("Graph generator: Generating graph ...");
         potential.reset(new float[m.cols * m.rows]);
         float pixel_path_length = segment_length_ / resolution_;
-        segments_ = calcSegments(m, distField_, voronoiMap_, potential.get(), pixel_path_length, crossingOptimization_ / resolution_, endSegmentOptimization_ / resolution_);
+            segments_ = calcSegments(m, m_r, distField_, voronoiMap_, potential.get(), pixel_path_length, crossingOptimization_ / resolution_, endSegmentOptimization_ / resolution_);
 
         //Check Directroy
-        save(graphCachePath_ + std::to_string(_map_hash) + "/", segments_, origin_, resolution_, map_);
-        ROS_INFO("Graph generator: Created new Graph %lu", _map_hash);
+        // save(graphCachePath_ + std::to_string(_map_hash) + "/", segments_, origin_, resolution_, map_);
+        // ROS_INFO("Graph generator: Created new Graph %lu", _map_hash);
     }
 
     bool VoronoiGeneratorNode::loadGraph(std::size_t _hash)
@@ -177,10 +181,63 @@ namespace tuw_graph
         return load(_path, segments_, origin_, resolution_);
     }
 
+    void VoronoiGeneratorNode::updateLongTermMap(const nav_msgs::OccupancyGrid::ConstPtr& _map)
+    {
+        if(longTermMap_.data.empty()){
+            longTermMap_ = *_map;
+        }else{
+            for(size_t i = 0; i < _map->data.size(); ++i){
+                if(longTermMap_.data[i] != 0)
+                    longTermMap_.data[i] = _map->data[i];
+            }
+        }
+    }
+
+    void VoronoiGeneratorNode::generateGraph(nav_msgs::OccupancyGrid grid)
+    {
+        realTimeMap_ = grid;
+        updateLongTermMap(boost::make_shared<nav_msgs::OccupancyGrid>(grid));
+        pubLongTermMap_.publish(longTermMap_);
+        std::vector<signed char> map = longTermMap_.data;
+
+
+        std::vector<double> parameters;
+        parameters.push_back(longTermMap_.info.origin.position.x);
+        parameters.push_back(longTermMap_.info.origin.position.y);
+        parameters.push_back(longTermMap_.info.resolution);
+        parameters.push_back(inflation_);
+        parameters.push_back(segment_length_);
+        parameters.push_back(endSegmentOptimization_);
+        parameters.push_back(crossingOptimization_);
+
+        size_t new_hash = getHash(map, parameters);
+
+        createGraph(boost::make_shared<nav_msgs::OccupancyGrid>(longTermMap_), new_hash);
+
+        if (publishVoronoiMapImage_ && (map_.size > 0))
+        {
+            voronoiMapImage_.header = longTermMap_.header;
+            voronoiMapImage_.info = longTermMap_.info;
+            voronoiMapImage_.data.resize(longTermMap_.data.size());
+
+            for (unsigned int i = 0; i < voronoiMapImage_.data.size(); i++)
+            {
+                voronoiMapImage_.data[i] = map_.data[i];
+            }
+            pubVoronoiMapImage_.publish(voronoiMapImage_);
+        }
+        publishSegments();
+    }
+
+    nav_msgs::OccupancyGrid VoronoiGeneratorNode::getLongTermMap()
+    {
+        return longTermMap_;
+    }
+
     void VoronoiGeneratorNode::publishSegments()
     {
         tuw_multi_robot_msgs::Graph graph;
-        graph.header.frame_id = "map";
+        graph.header.frame_id = "world";
         graph.header.seq = 0;
         graph.header.stamp = ros::Time::now();
 
@@ -194,7 +251,7 @@ namespace tuw_graph
             seg.id = (*it).getId();
             seg.weight = (*it).getLength();
             seg.width = (*it).getMinPathSpace() * resolution_;
-            seg.valid = true;
+            seg.valid = (*it).isValid();
             std::vector<Eigen::Vector2d> path = (*it).getPath();
 
             for (uint32_t i = 0; i < path.size(); i++)
@@ -221,6 +278,9 @@ namespace tuw_graph
             {
                 seg.successors.push_back(successors[i]);
             }
+
+            seg.door = (*it).isDoor();
+            seg.traversability = (*it).getTraversability();
 
             graph.vertices.push_back(seg);
         }
